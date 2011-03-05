@@ -15,7 +15,7 @@ BufferedStream = function (limit) {
 }
 util.inherits(BufferedStream, stream.Stream);
 BufferedStream.prototype.pipe = function () {
-  this.dest = dest = arguments[0];
+  var dest = this.dest = arguments[0];
   if (this.resume) this.resume();
   stream.Stream.prototype.pipe.apply(this, arguments);
   this.chunks.forEach(function (c) {dest.write(c)})
