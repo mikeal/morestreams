@@ -15,12 +15,15 @@ BufferedStream = function (limit) {
 }
 util.inherits(BufferedStream, stream.Stream);
 BufferedStream.prototype.pipe = function () {
-  var dest = this.dest = arguments[0];
-  if (this.resume) this.resume();
-  stream.Stream.prototype.pipe.apply(this, arguments);
-  this.chunks.forEach(function (c) {dest.write(c)})
-  this.size = 0;
-  delete this.chunks;
+  var self = this
+  var dest = self.dest = arguments[0];
+  if (self.resume) self.resume();
+  stream.Stream.prototype.pipe.apply(self, arguments);
+  process.nextTick(function () {
+    self.chunks.forEach(function (c) {dest.write(c)})
+    self.size = 0;
+    delete self.chunks;
+  })
 }
 BufferedStream.prototype.write = function (chunk) {
   if (this.dest) {

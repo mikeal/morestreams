@@ -22,14 +22,22 @@ while (i !== 100) {
   i++
 }
 
-assert.ok(buffered.chunks.length === 100);
+setTimeout(function () {
+  assert.ok(buffered.chunks.length === 100);
+  
+  i = 0;
+  dest.write = function () {
+    i++
+  }
 
-i = 0;
-dest.write = function () {
-  i++
-}
+  buffered.pipe(dest)
 
-buffered.pipe(dest)
+  setTimeout(function () {
+    assert.ok(i === 100);
+  }, 0)
+  
+  
 
-assert.ok(i === 100);
+}, 0)
+
 
