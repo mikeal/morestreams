@@ -16,17 +16,27 @@ BufferedStream = function (limit) {
 util.inherits(BufferedStream, stream.Stream);
 BufferedStream.prototype.pipe = function () {
   var self = this
-  var dest = self.dest = arguments[0];
   if (self.resume) self.resume();
   stream.Stream.prototype.pipe.apply(self, arguments);
+  //just incase you are piping to two streams, do not emit data twice.
+  //note: you can pipe twice, but you need to pipe both streams in the same tick.
+  //(this is normal for streams)
+  if(this.piped)
+    return;
+    
   process.nextTick(function () {
-    self.chunks.forEach(function (c) {dest.write(c)})
+    self.chunks.forEach(function (c) {self.emit('data', c)})
     self.size = 0;
     delete self.chunks;
+    if(self.ended){
+      self.emit('end')
+    }
   })
+  this.piped = true
+
 }
 BufferedStream.prototype.write = function (chunk) {
-  if (this.dest) {
+  if (!this.chunks) {
     this.emit('data', chunk);
     return;
   }
@@ -37,7 +47,10 @@ BufferedStream.prototype.write = function (chunk) {
   }
 }
 BufferedStream.prototype.end = function () {
-  this.emit('end');
+  if(!this.chunks)
+    this.emit('end');
+  else
+    this.ended = true
 }
 
 if (!stream.Stream.prototype.pause) {
