@@ -3,7 +3,7 @@ var stream = require('stream')
   , util = require('util')
   ;
 
-BufferedStream = function (limit) {
+var BufferedStream = function (limit) {
   if (typeof limit === 'undefined') {
     limit = Infinity;
   }
