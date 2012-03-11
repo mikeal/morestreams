@@ -30,7 +30,7 @@ setTimeout(function () {
     i++
   }
 
-  buffered.pipe(dest)
+  assert.deepEqual(buffered.pipe(dest), dest)
 
   setTimeout(function () {
     assert.ok(i === 100);
